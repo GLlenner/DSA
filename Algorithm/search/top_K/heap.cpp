@@ -20,7 +20,7 @@ int main()
 {   
     std::vector<int> data = {10, 31, 45, 56, 67, 32, 44, 56, 76, 56, 89, 91, 112, 134, 456, 1, 22};
     
-    int K = 5;
+    int K = 17;
     //问题：求data中最小的 K 个元素
     std::priority_queue<int> min_pq;
 
