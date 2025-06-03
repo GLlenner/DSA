@@ -313,22 +313,13 @@ void RB::erase_fix(Node* node)
         }
         erase_fix(node);
     }
-    /*删除节点 node*/
-    delete node;
-    /*父节点置空*/
-    if(is_left)
-    {
-        father->right = nullptr;
-    }
-    else
-    {
-        father->left = nullptr;
-    }
-    return;
 }
 
 void RB::erase(Node* node,int val)
 {   
+    /*如果不存在,直接返回即可*/
+    if(node == nullptr)
+        return;
     /*和二叉搜索树一样先找到要删除的节点*/
     if(node->val > val)
     {
@@ -339,10 +330,7 @@ void RB::erase(Node* node,int val)
         erase(node->right,val);
     }
     else
-    {
-        /*如果不存在,直接返回即可*/
-        if(node == nullptr)
-            return;
+    {   
         /*如果左右子树都有节点*/
         if(node->left && node->right)
         {
@@ -363,10 +351,12 @@ void RB::erase(Node* node,int val)
             if(father->left == node)
             {
                 father->left = node->left;
+                node->left->parent = father;
             }
             else
             {
                 father->right = node->left;
+                node->left->parent = father;
             }
             delete node;
             return;
@@ -378,17 +368,26 @@ void RB::erase(Node* node,int val)
             node->right->color = Black;
             if(father->left == node)
             {
-                father->left = node->left;
+                father->left = node->right;
+                node->right->parent = father;
             }
             else
             {
-                father->right = node->left;
+                father->right = node->right;
+                node->right->parent = father;
             }
             delete node;
             return;
         }
         else/*没有孩子节点*/
         {   
+            /*当没有孩子节点时，且要删除的是根节点，直接删除了*/
+            if(node == root)
+            {   
+                root = nullptr;
+                delete node;
+                return;
+            }
             Node* father = node->parent;
             /*待删除的是红色节点,直接删除*/
             if(color(node) == Red)
@@ -406,12 +405,21 @@ void RB::erase(Node* node,int val)
             }
             /*如果待删除的节点是黑色节点,且左右子节点都没有,才会进入到 erase_fix() 函数中*/
             else
-            {
+            {   
                 erase_fix(node);
+                /*父节点置空*/
+                if(node->parent->right == node)
+                {
+                    node->parent->right = nullptr;
+                }
+                else
+                {
+                    node->parent->left = nullptr;
+                }
+                /*删除节点 node*/
+                delete node;
             }
-            return;
         }
-
     }
 }
 
@@ -429,7 +437,7 @@ int RB::check_isRB(Node* node)
     int left = check_isRB(node->left);
     int right = check_isRB(node->right);
 
-    if(left != right)
+    if(left != right || left == -1 || right == -1)
         return -1;
     
     return color(node) == Black? left+1:left;
@@ -453,13 +461,31 @@ int main()
     rb.insert(5);
     rb.insert(25);
     printf("%d\n",rb.check_isRB(rb.root));
-    rb.erase(rb.root,34);
+    rb.erase(rb.root,18);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,25);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,15);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,6);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,13);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,37);
     printf("%d\n",rb.check_isRB(rb.root));
     rb.erase(rb.root,27);
     printf("%d\n",rb.check_isRB(rb.root));
     rb.erase(rb.root,17);
     printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,34);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,9);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,8);
+    printf("%d\n",rb.check_isRB(rb.root));
     rb.erase(rb.root,23);
+    printf("%d\n",rb.check_isRB(rb.root));
+    rb.erase(rb.root,5);
     printf("%d\n",rb.check_isRB(rb.root));
 
     return 0;
